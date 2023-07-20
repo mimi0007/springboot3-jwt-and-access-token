@@ -2,12 +2,12 @@ package com.ownlearning.configs;
 
 import com.ownlearning.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 
-@Configuration
+@Service
 public class CustomUserDetailsService implements UserDetailsService {
 
     //use autowire in this case as a bean of this service is created in security config and raising a constructor issue

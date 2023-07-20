@@ -45,8 +45,6 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    //////////////////////////
-
     //to have the username from the jwt token
     public String extractUserNameFromJwt(String jwtToken) {
         return extractClaim(jwtToken, Claims::getSubject); //which is userEmail set in createToken method

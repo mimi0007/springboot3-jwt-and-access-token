@@ -9,7 +9,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -22,7 +21,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
 
-    private final UserDetailsService userDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
 
     //this method will filter and validate the jwt token
     @Override
@@ -45,7 +44,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         //to check if the user is already authenticated or not through security context
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail); //get the user from db
+            UserDetails userDetails = customUserDetailsService.loadUserByUsername(userEmail); //get the user from db
 
             //userDetails is same as user as User class extends userDetails
             if (jwtService.isTokenValid(jwt, userDetails)) {
