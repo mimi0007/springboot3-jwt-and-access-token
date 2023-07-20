@@ -11,6 +11,8 @@ import com.ownlearning.responses.RegisterResponse;
 import com.ownlearning.services.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,8 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
 
     private final PasswordEncoder passwordEncoder;
+
+    private final AuthenticationManager authManager;
 
     private final JwtService jwtService;
 
@@ -56,6 +60,20 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse login(AuthRequest authRequest) {
-        return null;
+        authManager.authenticate( //this will authenticate whether the login credentials is in db or not
+                new UsernamePasswordAuthenticationToken(
+                        authRequest.getUserEmail(),
+                        authRequest.getPassword())
+        );
+
+        var user = userRepository.findByUserEmail(authRequest.getUserEmail())
+                .orElseThrow();
+        var jwtToken = jwtService.generateToken(user);
+
+        return AuthResponse.builder()
+                .status(HttpStatusCode.valueOf(200).value())
+                .jwtToken(jwtToken)
+                .message("Login Successful")
+                .build();
     }
 }
