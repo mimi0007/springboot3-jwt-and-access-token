@@ -1,16 +1,16 @@
-package com.ownlearning.responses;
+package com.ownlearning.requests;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class AuthResponse {
-    private int status;
-    private String message;
-    private String jwtToken;
+public class RegisterRequest {
+    private String name;
+    private String userEmail;
+    private String password;
 }
