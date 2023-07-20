@@ -24,8 +24,6 @@ public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
 
-    private final AuthenticationProvider authProvider;
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -41,7 +39,7 @@ public class SecurityConfig {
                         sessionManagement
                                 .sessionCreationPolicy(STATELESS)
                 )
-                .authenticationProvider(authProvider) //set the authentication provider
+                .authenticationProvider(authProvider()) //set the authentication provider bean
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class); //so that spring security use jwtAuthFilter before its own filters
 
         return http.build();
