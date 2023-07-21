@@ -19,7 +19,7 @@ import java.util.function.Function;
 public class JwtService {
 
     public static final String SECRET_KEY = "dcd092f32c19b9287f38ffad97fc2b12e4fbe9ee31e0afcb370d35f19cc31b23";
-    public static final long TOKEN_VALIDITY = 1000 * 60 * 15; //15 min
+    public static final long TOKEN_VALIDITY = 60 * 15; //15 min
 
     //to generate the jwt token with userDetails only
     public String generateToken(UserDetails userDetails) {
@@ -36,7 +36,7 @@ public class JwtService {
                 .setClaims(extractClaims)
                 .setSubject(userDetails.getUsername()) // email
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + TOKEN_VALIDITY))
+                .setExpiration(new Date(System.currentTimeMillis() + (1000 * TOKEN_VALIDITY)))
                 .signWith(getSigninKey(), SignatureAlgorithm.HS256) //the secret key and the algorithm
                 .compact();
     }
