@@ -9,6 +9,7 @@ import com.ownlearning.requests.RegisterRequest;
 import com.ownlearning.responses.AuthResponse;
 import com.ownlearning.responses.RegisterResponse;
 import com.ownlearning.services.AuthService;
+import com.ownlearning.services.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,6 +29,8 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authManager;
 
     private final JwtService jwtService;
+
+    private final RefreshTokenService refreshTokenService;
 
     @Override
     public RegisterResponse register(RegisterRequest registerRequest) {
@@ -63,9 +66,11 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponse login(AuthRequest authRequest) {
         doAuthenticate(authRequest);
 
-        var user = userRepository.findByUserEmail(authRequest.getUserEmail())
+        String userEmail = authRequest.getUserEmail();
+        var user = userRepository.findByUserEmail(userEmail)
                 .orElseThrow();
         var jwtToken = jwtService.generateToken(user);
+        var refreshToken = refreshTokenService.createRefreshToken(userEmail);
 
         return AuthResponse.builder()
                 .status(HttpStatusCode.valueOf(200).value())
