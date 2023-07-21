@@ -60,11 +60,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse login(AuthRequest authRequest) {
-        authManager.authenticate( //this will authenticate whether the login credentials is in db or not
-                new UsernamePasswordAuthenticationToken(
-                        authRequest.getUserEmail(),
-                        authRequest.getPassword())
-        );
+        doAuthenticate(authRequest);
 
         var user = userRepository.findByUserEmail(authRequest.getUserEmail())
                 .orElseThrow();
@@ -75,5 +71,14 @@ public class AuthServiceImpl implements AuthService {
                 .jwtToken(jwtToken)
                 .message("Login Successful")
                 .build();
+    }
+
+    //this will authenticate whether the login credentials is in db or not
+    private void doAuthenticate(AuthRequest authRequest) {
+        authManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        authRequest.getUserEmail(),
+                        authRequest.getPassword())
+        );
     }
 }
