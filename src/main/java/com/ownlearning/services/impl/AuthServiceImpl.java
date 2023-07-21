@@ -12,6 +12,7 @@ import com.ownlearning.services.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -75,10 +76,14 @@ public class AuthServiceImpl implements AuthService {
 
     //this will authenticate whether the login credentials is in db or not
     private void doAuthenticate(AuthRequest authRequest) {
-        authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        authRequest.getUserEmail(),
-                        authRequest.getPassword())
-        );
+        try {
+            authManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            authRequest.getUserEmail(),
+                            authRequest.getPassword())
+            );
+        } catch (BadCredentialsException exception) {
+            throw new RuntimeException("Invalid user email or password!");
+        }
     }
 }
