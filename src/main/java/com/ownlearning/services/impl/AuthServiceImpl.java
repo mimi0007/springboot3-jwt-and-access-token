@@ -9,9 +9,11 @@ import com.ownlearning.requests.RegisterRequest;
 import com.ownlearning.responses.AuthResponse;
 import com.ownlearning.responses.RegisterResponse;
 import com.ownlearning.services.AuthService;
+import com.ownlearning.services.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,8 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authManager;
 
     private final JwtService jwtService;
+
+    private final RefreshTokenService refreshTokenService;
 
     @Override
     public RegisterResponse register(RegisterRequest registerRequest) {
@@ -60,20 +64,32 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse login(AuthRequest authRequest) {
-        authManager.authenticate( //this will authenticate whether the login credentials is in db or not
-                new UsernamePasswordAuthenticationToken(
-                        authRequest.getUserEmail(),
-                        authRequest.getPassword())
-        );
+        doAuthenticate(authRequest);
 
-        var user = userRepository.findByUserEmail(authRequest.getUserEmail())
+        String userEmail = authRequest.getUserEmail();
+        var user = userRepository.findByUserEmail(userEmail)
                 .orElseThrow();
         var jwtToken = jwtService.generateToken(user);
+        var refreshToken = refreshTokenService.createRefreshToken(userEmail);
 
         return AuthResponse.builder()
                 .status(HttpStatusCode.valueOf(200).value())
                 .jwtToken(jwtToken)
+                .refreshToken(refreshToken.getRefreshToken())
                 .message("Login Successful")
                 .build();
+    }
+
+    //this will authenticate whether the login credentials is in db or not
+    private void doAuthenticate(AuthRequest authRequest) {
+        try {
+            authManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            authRequest.getUserEmail(),
+                            authRequest.getPassword())
+            );
+        } catch (BadCredentialsException exception) {
+            throw new RuntimeException("Invalid user email or password!");
+        }
     }
 }

@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,9 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    public static final String SECRET_KEY = "dcd092f32c19b9287f38ffad97fc2b12e4fbe9ee31e0afcb370d35f19cc31b23";
+    @Value("${secret.key}")
+    public String secretKey;
+    public static final long TOKEN_VALIDITY = 60 * 15; //15 min
 
     //to generate the jwt token with userDetails only
     public String generateToken(UserDetails userDetails) {
@@ -35,13 +38,13 @@ public class JwtService {
                 .setClaims(extractClaims)
                 .setSubject(userDetails.getUsername()) // email
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 15)) //15 min
+                .setExpiration(new Date(System.currentTimeMillis() + (1000 * TOKEN_VALIDITY)))
                 .signWith(getSigninKey(), SignatureAlgorithm.HS256) //the secret key and the algorithm
                 .compact();
     }
 
     private Key getSigninKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 

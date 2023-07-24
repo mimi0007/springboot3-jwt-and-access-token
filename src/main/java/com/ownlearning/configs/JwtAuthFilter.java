@@ -34,6 +34,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         final String jwt;
         final String userEmail;
 
+        //without jwt token
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -42,7 +43,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         jwt = authHeader.substring(7);
         userEmail = jwtService.extractUserNameFromJwt(jwt);
 
-        //to check if the user is already authenticated or not through security context
+        //to check if the user is not already authenticated in Security Context
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = customUserDetailsService.loadUserByUsername(userEmail); //get the user from db
 
@@ -57,8 +58,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken); //set this user's authentication in security context
             }
-
-        } else {
 
         }
         filterChain.doFilter(request, response);
