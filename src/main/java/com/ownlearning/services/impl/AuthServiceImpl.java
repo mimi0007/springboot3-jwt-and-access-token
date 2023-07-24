@@ -75,6 +75,7 @@ public class AuthServiceImpl implements AuthService {
         return AuthResponse.builder()
                 .status(HttpStatusCode.valueOf(200).value())
                 .jwtToken(jwtToken)
+                .refreshToken(refreshToken.getRefreshToken())
                 .message("Login Successful")
                 .build();
     }
